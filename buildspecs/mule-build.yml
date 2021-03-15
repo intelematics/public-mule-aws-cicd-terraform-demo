@@ -2,6 +2,7 @@ version: 0.2
 env:
  secrets-manager:
   MAVEN_SETTINGS_KEY: "Maven_Settings_Key:value"
+  MAVEN_SETTINGS_USER: "Maven_Settings_Key:user"
   
 phases:
  pre_build:
@@ -18,6 +19,7 @@ phases:
     
     #Setup the Maven settings keys
     - sed -i "s/{{MAVEN_SETTINGS_KEY}}/$MAVEN_SETTINGS_KEY/g" settings.xml
+    - sed -i "s/{{MAVEN_SETTINGS_USER}}/$MAVEN_SETTINGS_USER/g" settings.xml
     - cp settings.xml /root/.m2/settings.xml
     
     - cd $CODEBUILD_SRC_DIR

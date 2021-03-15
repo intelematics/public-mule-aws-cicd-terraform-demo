@@ -4,12 +4,12 @@
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
         <server>
-            <username>svc-jenkins-sass</username>
+            <username>{{MAVEN_SETTINGS_USER}}</username>
             <password>{{MAVEN_SETTINGS_KEY}}</password>
             <id>central</id>
         </server>
         <server>
-            <username>svc-jenkins-sass</username>
+            <username>{{MAVEN_SETTINGS_USER}}</username>
             <password>{{MAVEN_SETTINGS_KEY}}</password>
             <id>snapshots</id>
         </server>
