@@ -33,8 +33,12 @@ you will then need to set the following
 
 | Secret                 | Key                              | How to set this |
 | ---------------------- | -------------------------------- | -------------- |
-| Github_Auth_Token      | value                            | You need to setup a *Personal Access Token* against the user that is allowed github access See [github - Personal Access Tokens](https://github.com/settings/tokens)
-| Maven_Settings_Key     | value                            | Your maven secret in your `build-resources/settings.xml` You most likely have a maven repository that you login with, and then cache your artifacts from there
+| Github_Auth_Token      | value                            | You need to setup a **Personal Access Token** against 
+                                                                the user that is allowed github access. 
+                                                                See [github - Personal Access Tokens](https://github.com/settings/tokens)
+| Maven_Settings_Key     | value                            | Your maven secret in your `build-resources/settings.xml` 
+                                                                You most likely have a maven repository that you login with,
+                                                                and then cache your artifacts from there
 |                        | user                             | You Maven username as above
 | Anypoint_Build_Account | username                         | Your anypoint platform build user as created previously
 |                        | password                         | Password for above
@@ -46,7 +50,7 @@ the purposes of this demo this is set to the one id, however as you build this i
 you will need to build this out further.
 
 
-*Note:* this has been setup in a simplistic manner for illustrative purposes, it is suggested that you take this as a template and build out your CICD
+**Note:** this has been setup in a simplistic manner for illustrative purposes, it is suggested that you take this as a template and build out your CICD
 as modules for your job types, and use for each loops to generate your jobs as required.
 
 Once all of these variables have been setup you can then run
