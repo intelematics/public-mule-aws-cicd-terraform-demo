@@ -13,3 +13,9 @@ resource "aws_secretsmanager_secret" "maven_settings_key" {
 
   tags = local.tags
 }
+
+resource "aws_secretsmanager_secret" "anypoint_build" {
+  name = "Anypoint_Build_Account"
+
+  tags = local.tags
+}

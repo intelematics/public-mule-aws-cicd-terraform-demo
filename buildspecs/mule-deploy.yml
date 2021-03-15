@@ -1,0 +1,96 @@
+version: 0.2
+env:
+ shell: bash
+
+ variables:
+  WORKERS: 1
+  WORKER_SIZE: "0.1"
+  RUNTIME: "4.3.0"
+ secrets-manager:
+  ANYPOINT_USERNAME:  "Anypoint_Build_Account:username"
+  ANYPOINT_PASSWORD:  "Anypoint_Build_Account:password"
+  ANYPOINT_CLIENTID:  "Anypoint_Build_Account:anypoint.platform.client_id"
+  ANYPOINT_SECRET:    "Anypoint_Build_Account:anypoint.platform.client_secret"
+  
+phases:
+ install:
+   commands:
+    - echo -e "Version to deploy - $SOURCE_GITHUB_SHA\nLast deployed - $LAST_DEPLOY_SHA"
+    - touch ~/last-deploy-SHA
+    - LAST_DEPLOY_SHA=`cat ~/last-deploy-SHA`
+
+    - |
+      #if [ ! -d "/usr/local/lib/node_modules/anypoint-cli" ]; then
+        npm install -g anypoint-cli@latest
+      #else
+      #  echo anypoint-cli already installed
+      #fi
+    - export ANYPOINT_USERNAME=$ANYPOINT_USERNAME
+    - export ANYPOINT_PASSWORD=$ANYPOINT_PASSWORD
+    - export MULE_APPLICATION_NAME="${PIPELINE_PROJECT_NAME}-${PIPELINE_ENVIRONMENT}-ia"
+    - |
+      if [ ! -f "/usr/local/bin/anypoint-cli" ]; then
+        ln -s /usr/local/lib/node_modules/anypoint-cli/src/app.js /usr/local/bin/anypoint-cli
+        PATH=/usr/local/bin/:$PATH
+        echo Linked node executable
+      fi
+    
+ pre_build:
+   commands:
+    - |
+      anypoint-cli runtime-mgr cloudhub-application describe $MULE_APPLICATION_NAME > cloudhub-status
+      FOUND=$?
+      DEPLOYMENT_STATUS=`cat cloudhub-status | grep ^Status`
+      if [[ "$FOUND" == 0 ]]; then
+        DEPLOY_CMD="modify"
+      else
+        DEPLOY_CMD="deploy"
+      fi
+      
+    - echo Project initated for $DEPLOY_CMD...
+ build:
+   commands:
+    - echo Deploying...
+    
+    - touch properties
+    - echo "anypoint.platform.config.analytics.agent.enabled:true" >> properties
+    - echo "env:$PIPELINE_ENVIRONMENT" >> properties
+    - echo "anypoint.platform.client_id:$ANYPOINT_CLIENTID" >> properties
+    - echo "anypoint.platform.client_secret:$ANYPOINT_SECRET" >> properties
+    
+    # Deploy or update the cloudhub worker only if required
+    - |
+      if [[ "$DEPLOYMENT_STATUS" = *"STARTED"* ]] && [[ "$LAST_DEPLOY_SHA" = "$SOURCE_GITHUB_SHA" ]]; then
+        echo "*********************************************"
+        echo "      Already deployed and up to date"
+        echo "*********************************************"
+      else
+        anypoint-cli runtime-mgr cloudhub-application $DEPLOY_CMD \
+                --workers $WORKERS --workerSize $WORKER_SIZE --propertiesFile "properties" --objectStoreV1 "false" \
+                "$MULE_APPLICATION_NAME" *-mule-application.jar
+        DEPLOYMENT_STATUS=
+      fi
+    
+    # Loop around until either the build is properly deployed or 20 x 30 sec = 600 sec = 10 mins
+    - |
+      i=0
+      while [[ $i -lt 20 ]] && [[ ! "$DEPLOYMENT_STATUS" = *"STARTED"* ]]; do 
+        echo -n "Checking for deployed artifact ($i)... "
+        sleep 30
+        ((i++));
+        anypoint-cli runtime-mgr cloudhub-application describe $MULE_APPLICATION_NAME > cloudhub-status
+        DEPLOYMENT_STATUS=`cat cloudhub-status | grep ^Status `
+        echo $DEPLOYMENT_STATUS
+      done
+    
+    # If the delpoyment didn't work, then make sure the build is failed so we know!
+    - if [[ ! "$DEPLOYMENT_STATUS" = *"STARTED"* ]]; then echo "Deployment was not started"; exit 1; fi
+
+ post_build:
+   commands:
+    - anypoint-cli runtime-mgr cloudhub-application describe $MULE_APPLICATION_NAME
+    - echo "$SOURCE_GITHUB_SHA" > ~/last-deploy-SHA
+cache:
+ paths:
+  - ~/last-deploy-SHA
+  - /usr/local/lib/node_modules/anypoint-cli
