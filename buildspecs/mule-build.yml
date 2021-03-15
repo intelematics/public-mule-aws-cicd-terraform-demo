@@ -1,0 +1,47 @@
+version: 0.2
+env:
+ secrets-manager:
+  MAVEN_SETTINGS_KEY: "Maven_Settings_Key:value"
+  
+phases:
+ pre_build:
+   commands:
+    #Setup Java so that we can compile
+    - export JAVA_HOME=$JDK_HOME
+    - export JRE_HOME=$JDK_HOME
+    - export PATH=$JAVA_HOME:$PATH
+
+    - java --version
+    - mvn --version
+
+    - cd $CODEBUILD_SRC_DIR_build_library/build-resources
+    
+    #Setup the Maven settings keys
+    - sed -i "s/{{MAVEN_SETTINGS_KEY}}/$MAVEN_SETTINGS_KEY/g" settings.xml
+    - cp settings.xml /root/.m2/settings.xml
+    
+    - cd $CODEBUILD_SRC_DIR
+
+    - mvn clean validate -Dmule.env=local
+
+    - echo Project initated...
+
+ build:
+   commands:
+    - echo Build package started on `date`
+    
+    #Create the package - We don't need to install it into the local maven.
+    - mvn verify
+
+ post_build:
+   commands:
+    - echo Build completed at `date`
+
+artifacts:
+ files:
+  - $CODEBUILD_SRC_DIR/target/*.jar
+ discard-paths: yes
+
+cache:
+ paths:
+  - '/root/.m2/**/*'
