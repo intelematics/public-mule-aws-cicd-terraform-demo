@@ -33,12 +33,8 @@ you will then need to set the following
 
 | Secret                 | Key                              | How to set this |
 | ---------------------- | -------------------------------- | -------------- |
-| Github_Auth_Token      | value                            | You need to setup a **Personal Access Token** against 
-                                                                the user that is allowed github access. 
-                                                                See [github - Personal Access Tokens](https://github.com/settings/tokens)
-| Maven_Settings_Key     | value                            | Your maven secret in your `build-resources/settings.xml` 
-                                                                You most likely have a maven repository that you login with,
-                                                                and then cache your artifacts from there
+| Github_Auth_Token      | value                            | You need to setup a **Personal Access Token** against the user that is allowed github access.See [github - Personal Access Tokens](https://github.com/settings/tokens)
+| Maven_Settings_Key     | value                            | Your maven secret in your `build-resources/settings.xml` You most likely have a maven repository that you login with,and then cache your artifacts from there
 |                        | user                             | You Maven username as above
 | Anypoint_Build_Account | username                         | Your anypoint platform build user as created previously
 |                        | password                         | Password for above
