@@ -1,7 +1,7 @@
 module "deploy_mule" {
   for_each = toset(["sandbox","prod"])
 
-  source = "git@github.com:intelematics/tf-modules-common.git//codebuild?ref=v4.2.2"
+  source = "git@github.com:intelematics/public-tf-modules-common.git//codebuild"
   
   bucket_prefix = "${data.aws_caller_identity.current.account_id}-demo"
   codebuild_project_name = "deploy-test-api"
@@ -11,7 +11,7 @@ module "deploy_mule" {
   project = {
     owner: "intelematics",
     branch: "master",
-    repo: "mule-demo-test-api"
+    repo: "public-mule-demo-test-api"
   }
   environment = each.key
   environment_variables = {
