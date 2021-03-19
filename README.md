@@ -56,3 +56,5 @@ terragrunt apply
 Your environment will then create and end up looking like:
 
 ![code pipeline](docs/mule-demo-codepipeline.png "Code Pipeline")
+
+Copyright © 2021 Intelematics
